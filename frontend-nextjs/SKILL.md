@@ -890,3 +890,70 @@ No barrel exports (`index.ts`) — import directly from the file.
 - Use named constants, never magic values
 - Prefer explicit over implicit
 - No inline functions in JSX
+
+---
+
+## CLAUDE.md Auto-Generation
+
+When the user says "scaffold a new project", "start a new project", or "create a new project", always auto-generate a `CLAUDE.md` file at the root of the project.
+
+### Step 1 — Ask these questions first
+
+1. What is the project name?
+2. What does it do and who is it for?
+3. What roles does it have? (e.g. Admin, Cashier, SuperAdmin)
+4. What are the key features?
+5. Any environment variables needed beyond the defaults?
+
+### Step 2 — Generate filled CLAUDE.md
+
+```markdown
+# [Project Name]
+
+## What is this project
+[Filled from user answer]
+
+## Stack
+
+### Frontend
+- Framework: Next.js 15 (App Router)
+- Styling: Tailwind CSS + shadcn/ui
+- Icons: Hugeicons
+- Data fetching: TanStack Query
+- Forms: React Hook Form + Zod
+- HTTP: Axios
+
+### Backend
+- Framework: .NET 10, ASP.NET Core Web API
+- Architecture: Clean Architecture + MediatR CQRS
+- ORM: EF Core
+- Database: PostgreSQL (Neon)
+- Auth: JWT (cookie-based)
+
+## Roles
+- [Filled from user answer]
+
+## Key Features
+- [Filled from user answer]
+
+## Folder Structure
+[Generate based on scaffolded structure]
+
+## Environment Variables
+
+### Frontend (.env.local)
+\```
+NEXT_PUBLIC_API_URL=
+\```
+
+### Backend (appsettings.json)
+\```
+ConnectionStrings__DefaultConnection=
+JwtSettings__Secret=
+JwtSettings__Issuer=
+JwtSettings__Audience=
+\```
+
+## Notes
+[Any project-specific rules or context]
+```

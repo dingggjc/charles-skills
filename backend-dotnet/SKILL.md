@@ -619,3 +619,54 @@ public class CreateCategoryValidator : AbstractValidator<CreateCategoryDTO>
 - Always filter soft-deleted records with `!c.IsDeleted`
 - Use object initializer syntax — never set properties line by line after construction
 - One command/query + its handler per file pair, co-located in the same folder
+
+---
+
+## CLAUDE.md Auto-Generation
+
+When the user says "scaffold a new project", "start a new project", or "create a new project", always auto-generate a `CLAUDE.md` file at the root of the solution.
+
+### Step 1 — Ask these questions first
+
+1. What is the project/solution name?
+2. What does it do and who is it for?
+3. What roles does it have? (e.g. Admin, Cashier, SuperAdmin)
+4. What are the key features/domains?
+5. Any extra environment variables beyond defaults?
+
+### Step 2 — Generate filled CLAUDE.md
+
+```markdown
+# [Project Name]
+
+## What is this project
+[Filled from user answer]
+
+## Stack
+- Framework: .NET 10, ASP.NET Core Web API
+- Architecture: Clean Architecture + MediatR CQRS
+- ORM: EF Core
+- Database: PostgreSQL (Neon)
+- Auth: JWT (cookie-based)
+- Validation: FluentValidation
+
+## Roles
+- [Filled from user answer]
+
+## Key Features / Domains
+- [Filled from user answer]
+
+## Solution Structure
+[Generate based on scaffolded solution]
+
+## Environment Variables (appsettings.json)
+\```
+ConnectionStrings__DefaultConnection=
+JwtSettings__Secret=
+JwtSettings__Issuer=
+JwtSettings__Audience=
+\```
+
+## Notes
+[Any project-specific rules or context]
+```

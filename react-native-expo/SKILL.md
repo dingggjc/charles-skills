@@ -477,3 +477,53 @@ const handleBack = () => {
 - Use named constants, never magic values
 - No barrel exports (`index.ts`) — import directly from the file
 EOF
+---
+
+## CLAUDE.md Auto-Generation
+
+When the user says "scaffold a new project", "start a new project", or "create a new app", always auto-generate a `CLAUDE.md` file at the root of the project.
+
+### Step 1 — Ask these questions first
+
+1. What is the app name?
+2. What does it do and who is it for?
+3. What roles does it have? (e.g. Admin, User, Guest)
+4. What are the key features/screens?
+5. Any environment variables needed beyond the defaults?
+
+### Step 2 — Generate filled CLAUDE.md
+
+```markdown
+# [App Name]
+
+## What is this project
+[Filled from user answer]
+
+## Stack
+- Framework: Expo (managed workflow)
+- Navigation: Expo Router
+- Styling: NativeWind + React Native Reusables
+- Icons: Hugeicons React Native
+- Data fetching: TanStack Query
+- HTTP: Axios
+- Forms: React Hook Form + Zod
+- Global state: Zustand
+- Backend: .NET Web API
+
+## Roles
+- [Filled from user answer]
+
+## Key Features / Screens
+- [Filled from user answer]
+
+## Folder Structure
+[Generate based on scaffolded structure]
+
+## Environment Variables (.env)
+\```
+EXPO_PUBLIC_API_URL=
+\```
+
+## Notes
+[Any project-specific rules or context]
+```
