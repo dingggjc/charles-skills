@@ -1,0 +1,479 @@
+---
+name: react-native-expo
+description: >
+  Apply this skill for any React Native or Expo mobile app task — scaffolding a new
+  project, creating screens, components, hooks, features, navigation, forms, or wiring
+  data fetching. Trigger whenever the user mentions React Native, Expo, mobile app,
+  screens, navigation, Expo Router, NativeWind, React Native Reusables, or asks to
+  build/add/create anything for a mobile app. Also trigger when the user says "new
+  screen", "new feature", "scaffold a mobile app", "add a component", or "add a hook".
+---
+
+# React Native Expo Skill
+
+Standards and scaffold guide for all React Native Expo projects.
+
+## Stack
+
+| Layer | Tool |
+|---|---|
+| Framework | Expo (managed workflow) |
+| Language | TypeScript |
+| Navigation | Expo Router (file-based) |
+| Styling | NativeWind + React Native Reusables |
+| Icons | Hugeicons React Native (`@hugeicons/react-native`) |
+| Data Fetching | TanStack Query |
+| HTTP Client | Axios with a shared instance |
+| Forms | React Hook Form + Zod |
+| Global State | Zustand |
+| Backend | .NET Web API (same as web projects) |
+
+---
+
+## Project Folder Structure
+
+```
+app/                              ← Expo Router file-based routing
+├── (auth)/
+│   └── login.tsx
+├── (tabs)/
+│   ├── _layout.tsx
+│   ├── index.tsx                 ← Home tab
+│   └── profile.tsx
+├── _layout.tsx                   ← Root layout
+└── +not-found.tsx
+src/
+├── features/                     ← vertical slice per domain, always flat
+│   └── [domain-name]/            ← e.g. users/, products/, orders/
+│       ├── components/
+│       ├── hooks/
+│       │   ├── use[Domain].ts    ← main feature hook
+│       │   ├── useGet[Domain]s.ts
+│       │   └── useCreate[Domain].ts
+│       ├── api.ts
+│       └── types.ts
+├── components/                   ← global shared components
+│   └── ui/                       ← React Native Reusables components
+├── lib/                          ← third-party config, utilities, shared resources
+│   ├── axios.ts                  ← shared axios instance
+│   ├── enums/                    ← e.g. Roles.ts, Status.ts
+│   ├── helpers/                  ← e.g. formatCurrency.ts
+│   ├── constants/                ← e.g. apiRoutes.ts
+│   └── schemas/                  ← Zod schemas shared across 2+ features
+├── store/                        ← Zustand stores
+│   └── useAuthStore.ts
+├── hooks/                        ← global shared hooks
+└── providers/                    ← QueryProvider, etc.
+```
+
+**Feature rules:**
+- Features are always flat at the top level — never nest a feature inside another feature
+- Each feature is fully self-contained
+- Never import a feature-scoped file from outside its feature folder
+- If something is needed in 2+ features, move it to `src/components/` or `src/hooks/`
+
+---
+
+## Scaffolding — Files to Generate
+
+### 1. Root Layout (`app/_layout.tsx`)
+
+```tsx
+import { QueryProvider } from "@/src/providers/QueryProvider"
+import { Stack } from "expo-router"
+
+export default function RootLayout() {
+  return (
+    <QueryProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </QueryProvider>
+  )
+}
+```
+
+### 2. Axios Shared Instance (`src/lib/axios.ts`)
+
+```typescript
+import axios from "axios"
+
+const api = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  withCredentials: true,
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject(error)
+)
+
+export default api
+```
+
+### 3. TanStack Query Provider (`src/providers/QueryProvider.tsx`)
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { useState } from "react"
+
+export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
+  const [queryClient] = useState(() => new QueryClient())
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  )
+}
+```
+
+### 4. Auth Store (`src/store/useAuthStore.ts`)
+
+```typescript
+import { create } from "zustand"
+
+interface User {
+  id: string
+  role: string
+  firstName: string
+  lastName: string
+}
+
+interface AuthState {
+  user: User | null
+  token: string | null
+  setAuth: (user: User, token: string) => void
+  clearAuth: () => void
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: null,
+  setAuth: (user, token) => set({ user, token }),
+  clearAuth: () => set({ user: null, token: null }),
+}))
+```
+
+### 5. New Feature Scaffold
+
+When the user says "add a new feature" or "create a [name] feature", generate:
+
+```
+src/features/[domain-name]/
+├── components/               ← feature-scoped components
+├── hooks/
+│   ├── use[Domain].ts        ← main hook, owns all state + logic
+│   ├── useGet[Domain]s.ts    ← TanStack Query hook
+│   └── useCreate[Domain].ts  ← TanStack Mutation hook
+├── schemas/                  ← Zod schemas + inferred types for this feature
+│   └── create[Domain]Schema.ts
+├── api.ts                    ← all axios calls
+└── types.ts                  ← all types and interfaces
+```
+
+---
+
+## Screen Standards
+
+### Screen Boilerplate
+
+Every screen file uses this structure:
+
+```tsx
+import { View, ScrollView } from "react-native"
+
+export default function HomeScreen() {
+  return (
+    <ScrollView className="flex-1 bg-background">
+      <View className="flex-1 p-4">
+        {/* content */}
+      </View>
+    </ScrollView>
+  )
+}
+```
+
+- PascalCase + `Screen` suffix matching the route (`HomeScreen`, `ProfileScreen`)
+- Default exports for screens only — everything else uses `export const`
+- Never put business logic, state, or API calls directly in the screen
+- Keep screens thin — delegate to feature components
+
+---
+
+## State Management Pattern
+
+### Hook — owns all state and logic
+
+```typescript
+// src/features/products/hooks/useProducts.ts
+import { useState } from "react"
+import { useGetProducts } from "./useGetProducts"
+import { useCreateProduct } from "./useCreateProduct"
+
+export const useProducts = () => {
+  const [searchKey, setSearchKey] = useState("")
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const { data, isLoading } = useGetProducts({ searchKey })
+  const { mutate: createProduct } = useCreateProduct()
+
+  const handleOpenModal = (id: string) => {
+    setSelectedId(id)
+    setIsModalVisible(true)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedId(null)
+    setIsModalVisible(false)
+  }
+
+  return {
+    data,
+    isLoading,
+    searchKey,
+    setSearchKey,
+    selectedId,
+    isModalVisible,
+    handleOpenModal,
+    handleCloseModal,
+    createProduct,
+  }
+}
+```
+
+### Zustand — global state only
+
+Use Zustand only for state that needs to persist across screens or the entire app — auth, user session, app-wide settings. Never use Zustand for feature-level state:
+
+```typescript
+// src/store/useAuthStore.ts — global, lives in store/
+// src/features/products/hooks/useProducts.ts — feature state, lives in hooks/
+```
+
+---
+
+## TanStack Query Hook Naming
+
+Same convention as the web stack — hook name mirrors the API call exactly:
+
+```
+src/features/products/hooks/
+├── useGetProducts.ts       ← mirrors getProducts
+├── useGetProductById.ts    ← mirrors getProductById
+├── useCreateProduct.ts     ← mirrors createProduct
+├── useUpdateProduct.ts     ← mirrors updateProduct
+├── useDeleteProduct.ts     ← mirrors deleteProduct
+└── useProducts.ts          ← main feature hook, composes the above
+```
+
+**Query hook:**
+
+```typescript
+// src/features/products/hooks/useGetProducts.ts
+import { useQuery } from "@tanstack/react-query"
+import { getProducts } from "../api"
+import { GetProductsParams } from "../types"
+
+export const useGetProducts = (params: GetProductsParams) => {
+  return useQuery({
+    queryKey: ["products", params],
+    queryFn: () => getProducts(params),
+  })
+}
+```
+
+**Mutation hook:**
+
+```typescript
+// src/features/products/hooks/useCreateProduct.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createProduct } from "../api"
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+  })
+}
+```
+
+---
+
+## Component Standards
+
+### Global vs Feature-scoped
+
+| Scope | Location |
+|---|---|
+| Used in 2+ unrelated features | `src/components/` |
+| Used only in one feature | `src/features/[domain]/components/` |
+| React Native Reusables base components | `src/components/ui/` |
+
+### Reusable Component Checklist
+
+Before creating any new component, ask in order:
+
+1. **Does it already exist in `src/components/`?** → use it
+2. **Will this be used in more than one feature?** → build reusable, put in `src/components/` from the start
+3. **Only used in this feature?** → put in `src/features/[domain]/components/`
+
+**Components that must always be global:**
+
+| Component | Why |
+|---|---|
+| `SearchInput` | Every list screen has one |
+| `EmptyState` | Every list screen needs it |
+| `LoadingSpinner` | Used everywhere |
+| `ConfirmModal` | Delete confirmations everywhere |
+| `PageHeader` | Every screen has a title |
+
+### Component Boilerplate
+
+```tsx
+import { View, Text } from "react-native"
+
+interface ProductCardProps {
+  name: string
+  price: number
+  onPress: () => void
+}
+
+export const ProductCard = ({ name, price, onPress }: ProductCardProps) => {
+  return (
+    <View className="rounded-lg border border-border bg-card p-4">
+      <Text className="text-foreground font-medium">{name}</Text>
+      <Text className="text-muted-foreground">{price}</Text>
+    </View>
+  )
+}
+```
+
+---
+
+## Icons
+
+Always use Hugeicons React Native — never Expo icons or React Native Vector Icons:
+
+```tsx
+import { HugeiconsIcon } from "@hugeicons/react-native"
+import { SearchIcon } from "@hugeicons/core-free-icons"
+
+<HugeiconsIcon icon={SearchIcon} size={20} color="black" />
+```
+
+---
+
+## Forms (React Hook Form + Zod)
+
+```tsx
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { TextInput, View, Pressable, Text } from "react-native"
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+})
+
+type FormValues = z.infer<typeof schema>
+
+export const LoginForm = () => {
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = (data: FormValues) => {
+    // api call
+  }
+
+  return (
+    <View className="flex flex-col gap-4">
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            placeholder="Email"
+            className="border border-border rounded-lg p-3"
+          />
+        )}
+      />
+      {errors.email && (
+        <Text className="text-destructive text-sm">{errors.email.message}</Text>
+      )}
+      <Pressable onPress={handleSubmit(onSubmit)} className="bg-primary rounded-lg p-3">
+        <Text className="text-primary-foreground text-center">Login</Text>
+      </Pressable>
+    </View>
+  )
+}
+```
+
+---
+
+## Navigation (Expo Router)
+
+Same mental model as Next.js App Router — folder = route:
+
+```
+app/
+├── (auth)/               ← auth group, no tab bar
+│   └── login.tsx         → /login
+├── (tabs)/               ← tab group
+│   ├── _layout.tsx       ← tab bar config
+│   ├── index.tsx         → / (Home tab)
+│   └── profile.tsx       → /profile
+└── _layout.tsx           ← root layout
+```
+
+**Navigating:**
+
+```tsx
+import { router } from "expo-router"
+
+const handleNavigate = () => {
+  router.push("/profile")
+}
+
+const handleBack = () => {
+  router.back()
+}
+```
+
+---
+
+## Naming Conventions
+
+| Type | Convention | Example |
+|---|---|---|
+| Screens | PascalCase + `Screen` suffix | `HomeScreen`, `ProductListScreen` |
+| Components | PascalCase | `ProductCard`, `SearchInput` |
+| Hooks | camelCase + `use` prefix | `useProducts`, `useGetProducts` |
+| Stores | camelCase + `use` prefix + `Store` suffix | `useAuthStore` |
+| Utilities | camelCase | `formatCurrency.ts` |
+| Variables & constants | camelCase | `maxRetryCount`, `apiRoutes` |
+| Enums | PascalCase | `Roles.ts` |
+| Types/Interfaces | PascalCase | `User`, `ApiResponse` |
+
+- camelCase for everything — no SCREAMING_SNAKE_CASE anywhere
+- `export const` for all non-screen components, hooks, stores, utilities
+- Default exports for screens only
+
+---
+
+## General Code Quality
+
+- No inline comments — code should be self-explanatory, never narrate what the code is doing
+- No logic duplication — extract to hooks or helpers
+- No inline functions in JSX — always extract to named handlers
+- Keep screens thin — all logic in hooks
+- Use named constants, never magic values
+- No barrel exports (`index.ts`) — import directly from the file
+EOF
