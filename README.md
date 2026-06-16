@@ -18,24 +18,36 @@ Personal Claude skill collection for consistent coding standards across all proj
 
 ```bash
 # Frontend
-npx skills add github:dingggjc/agent-skills/frontend-nextjs
+npx skills add github:dingggjc/charles-skills/frontend-nextjs
 
 # Backend
-npx skills add github:dingggjc/agent-skills/backend-dotnet
+npx skills add github:dingggjc/charles-skills/backend-dotnet
 
 # React Native
-npx skills add github:dingggjc/agent-skills/react-native-expo
+npx skills add github:dingggjc/charles-skills/react-native-expo
 ```
 
 ### Install from local clone
 
 ```bash
-git clone https://github.com/dingggjc/agent-skills.git
+git clone https://github.com/dingggjc/charles-skills.git
 
-npx skills add ./agent-skills/frontend-nextjs
-npx skills add ./agent-skills/backend-dotnet
-npx skills add ./agent-skills/react-native-expo
+npx skills add ./charles-skills/frontend-nextjs
+npx skills add ./charles-skills/backend-dotnet
+npx skills add ./charles-skills/react-native-expo
 ```
+
+---
+
+## How it works
+
+1. Install the relevant skill for your project
+2. Say "scaffold a new project called X"
+3. Claude asks you — name, description, roles, key features
+4. Claude generates the full folder structure + a filled `CLAUDE.md` automatically
+5. Every session after, Claude Code reads `CLAUDE.md` + the skill — no manual prompting needed
+
+Use `CLAUDE_TEMPLATE.md` at the root as a reference for what gets generated.
 
 ---
 
@@ -48,6 +60,7 @@ npx skills add ./agent-skills/react-native-expo
 - TanStack Query hook naming conventions (`useGetUsers` mirrors `getUsers`)
 - Zod schema placement rules (`features/[domain]/schemas/`)
 - Reusable component checklist
+- Auto-generates filled `CLAUDE.md` on project scaffold
 
 ### `backend-dotnet`
 - Scaffolds Clean Architecture .NET solution
@@ -56,6 +69,7 @@ npx skills add ./agent-skills/react-native-expo
 - `ICurrentUserService` — never pass UserId/UserRole as command params
 - FluentValidation per feature
 - Controller standards — only `IMediator`, no business logic
+- Auto-generates filled `CLAUDE.md` on project scaffold
 
 ### `react-native-expo`
 - Scaffolds Expo managed workflow project structure
@@ -64,6 +78,7 @@ npx skills add ./agent-skills/react-native-expo
 - Same vertical slice feature architecture as web
 - Zustand for global state, TanStack Query for server state
 - Hugeicons React Native for icons
+- Auto-generates filled `CLAUDE.md` on project scaffold
 
 ---
 
