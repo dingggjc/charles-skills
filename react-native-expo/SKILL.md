@@ -43,25 +43,29 @@ app/                              ← Expo Router file-based routing
 ├── _layout.tsx                   ← Root layout
 └── +not-found.tsx
 src/
+├── api/                          ← all axios calls, grouped by domain
+│   └── [domain]/
+│       └── [Domain]Api.ts        ← e.g. authApi.ts, productsApi.ts
+├── types/                        ← DTOs grouped by domain
+│   └── [domain]/
+│       └── [Domain]DTO.ts        ← e.g. AuthDTO.ts, ProductDTO.ts
 ├── features/                     ← vertical slice per domain, always flat
-│   └── [domain-name]/            ← e.g. users/, products/, orders/
-│       ├── components/
+│   └── [domain-name]/            ← e.g. auth/, products/, orders/
+│       ├── components/           ← sub-components only (not the main page)
 │       ├── hooks/
 │       │   ├── use[Domain].ts    ← main feature hook
 │       │   ├── useGet[Domain]s.ts
 │       │   └── useCreate[Domain].ts
-│       ├── api.ts
-│       └── types.ts
+│       ├── schemas/              ← Zod schemas for this feature
+│       └── [Domain]Page.tsx      ← main page/form component at feature root
 ├── components/                   ← global shared components
 │   └── ui/                       ← React Native Reusables components
 ├── lib/                          ← third-party config, utilities, shared resources
 │   ├── axios.ts                  ← shared axios instance
 │   ├── enums/                    ← e.g. Roles.ts, Status.ts
 │   ├── helpers/                  ← e.g. formatCurrency.ts
-│   ├── constants/                ← e.g. apiRoutes.ts
-│   └── schemas/                  ← Zod schemas shared across 2+ features
+│   └── constants/                ← e.g. apiRoutes.ts
 ├── store/                        ← Zustand stores
-│   └── useAuthStore.ts
 ├── hooks/                        ← global shared hooks
 └── providers/                    ← QueryProvider, etc.
 ```
@@ -94,14 +98,15 @@ app/
 ├── (auth)/
 ├── (tabs)/
 src/
+├── api/
+├── types/
 ├── features/
 ├── components/
 │   └── ui/
 ├── lib/
 │   ├── enums/
 │   ├── helpers/
-│   ├── constants/
-│   └── schemas/
+│   └── constants/
 ├── store/
 ├── hooks/
 └── providers/
@@ -144,20 +149,26 @@ export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
 
 ### New Feature Scaffold
 
-When the user says "add a new feature" or "create a [name] feature", always create this exact folder + file structure. Every item below must be created — subfolders as real directories, never flat:
+When the user says "add a new feature" or "create a [name] feature", always create this exact structure. Every item must be created — subfolders as real directories, never flat:
 
 ```
-src/features/[domain-name]/
-├── components/           ← create this folder (empty, add .gitkeep)
-├── hooks/                ← create this folder (empty, add .gitkeep)
-├── schemas/              ← create this folder (empty, add .gitkeep)
-├── api.ts                ← create this file (empty)
-└── types.ts              ← create this file (empty)
+src/
+├── api/
+│   └── [domain]/
+│       └── [Domain]Api.ts        ← empty file
+├── types/
+│   └── [domain]/
+│       └── [Domain]DTO.ts        ← empty file
+└── features/
+    └── [domain]/
+        ├── components/           ← empty folder (.gitkeep)
+        ├── hooks/                ← empty folder (.gitkeep)
+        └── schemas/              ← empty folder (.gitkeep)
 ```
 
 **Rules:**
-- `components/`, `hooks/`, `schemas/` are always subfolders — never skip them
-- `api.ts` and `types.ts` are files at the feature root — not inside a subfolder
+- `api/[domain]/`, `types/[domain]/`, `components/`, `hooks/`, `schemas/` are always real folders — never skip them
+- The main page component (e.g. `LoginForm.tsx`) is added by the developer at the feature root — do NOT generate it on scaffold
 - Do NOT generate any code inside these files — leave them empty
 - Do NOT add any extra files beyond what is listed above
 
