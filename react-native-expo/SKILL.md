@@ -144,16 +144,22 @@ export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
 
 ### New Feature Scaffold
 
-When the user says "add a new feature" or "create a [name] feature", create only the folder structure — no implementation code:
+When the user says "add a new feature" or "create a [name] feature", always create this exact folder + file structure. Every item below must be created — subfolders as real directories, never flat:
 
 ```
 src/features/[domain-name]/
-├── components/
-├── hooks/
-├── schemas/
-├── api.ts          ← empty file
-└── types.ts        ← empty file
+├── components/           ← create this folder (empty, add .gitkeep)
+├── hooks/                ← create this folder (empty, add .gitkeep)
+├── schemas/              ← create this folder (empty, add .gitkeep)
+├── api.ts                ← create this file (empty)
+└── types.ts              ← create this file (empty)
 ```
+
+**Rules:**
+- `components/`, `hooks/`, `schemas/` are always subfolders — never skip them
+- `api.ts` and `types.ts` are files at the feature root — not inside a subfolder
+- Do NOT generate any code inside these files — leave them empty
+- Do NOT add any extra files beyond what is listed above
 
 ---
 
