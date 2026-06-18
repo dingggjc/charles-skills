@@ -74,24 +74,40 @@ src/
 
 ---
 
-## Scaffolding — Files to Generate
+## Scaffolding — What to Generate
 
-### 1. Root Layout (`app/_layout.tsx`)
+When the user says "scaffold a new project", "start a new project", or "create a new app":
 
-```tsx
-import { QueryProvider } from "@/src/providers/QueryProvider"
-import { Stack } from "expo-router"
+**Only generate these things — nothing else:**
 
-export default function RootLayout() {
-  return (
-    <QueryProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </QueryProvider>
-  )
-}
+1. Folder structure (empty folders with `.gitkeep`)
+2. `CLAUDE.md` at the project root (see CLAUDE.md Auto-Generation section)
+3. `src/lib/axios.ts`
+4. `src/providers/QueryProvider.tsx`
+
+**Do NOT generate:** screens, Auth Store, types, login forms, navigation files, or any feature code. Those are written by the developer when needed.
+
+### Folder structure to create
+
+```
+app/
+├── (auth)/
+├── (tabs)/
+src/
+├── features/
+├── components/
+│   └── ui/
+├── lib/
+│   ├── enums/
+│   ├── helpers/
+│   ├── constants/
+│   └── schemas/
+├── store/
+├── hooks/
+└── providers/
 ```
 
-### 2. Axios Shared Instance (`src/lib/axios.ts`)
+### `src/lib/axios.ts`
 
 ```typescript
 import axios from "axios"
@@ -109,7 +125,7 @@ api.interceptors.response.use(
 export default api
 ```
 
-### 3. TanStack Query Provider (`src/providers/QueryProvider.tsx`)
+### `src/providers/QueryProvider.tsx`
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -126,48 +142,17 @@ export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
 }
 ```
 
-### 4. Auth Store (`src/store/useAuthStore.ts`)
+### New Feature Scaffold
 
-```typescript
-import { create } from "zustand"
-
-interface User {
-  id: string
-  role: string
-  firstName: string
-  lastName: string
-}
-
-interface AuthState {
-  user: User | null
-  token: string | null
-  setAuth: (user: User, token: string) => void
-  clearAuth: () => void
-}
-
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
-  setAuth: (user, token) => set({ user, token }),
-  clearAuth: () => set({ user: null, token: null }),
-}))
-```
-
-### 5. New Feature Scaffold
-
-When the user says "add a new feature" or "create a [name] feature", generate:
+When the user says "add a new feature" or "create a [name] feature", create only the folder structure — no implementation code:
 
 ```
 src/features/[domain-name]/
-├── components/               ← feature-scoped components
+├── components/
 ├── hooks/
-│   ├── use[Domain].ts        ← main hook, owns all state + logic
-│   ├── useGet[Domain]s.ts    ← TanStack Query hook
-│   └── useCreate[Domain].ts  ← TanStack Mutation hook
-├── schemas/                  ← Zod schemas + inferred types for this feature
-│   └── create[Domain]Schema.ts
-├── api.ts                    ← all axios calls
-└── types.ts                  ← all types and interfaces
+├── schemas/
+├── api.ts          ← empty file
+└── types.ts        ← empty file
 ```
 
 ---
