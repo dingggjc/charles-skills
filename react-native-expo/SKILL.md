@@ -13,6 +13,43 @@ description: >
 
 Standards and scaffold guide for all React Native Expo projects.
 
+---
+
+## COMMANDS
+
+Parse the first word of `$ARGUMENTS` to determine the mode. Route accordingly.
+
+| Command | Usage | What it does |
+|---|---|---|
+| `scaffold` | `/react-native-expo scaffold` | New project — ask the 5 CLAUDE.md questions, generate folder structure + axios + QueryProvider + CLAUDE.md |
+| `feature` | `/react-native-expo feature <name>` | Scaffold a new vertical slice — creates `api/[domain]/`, `types/[domain]/`, `features/[domain]/` with all subfolders |
+| `screen` | `/react-native-expo screen <name>` | Generate a single screen file using the screen boilerplate, placed at the correct Expo Router path |
+| `component` | `/react-native-expo component <name>` | Generate a component using the boilerplate — ask if feature-scoped or global, place in the right folder |
+| `hook` | `/react-native-expo hook <name>` | Generate a TanStack Query hook (query or mutation) — ask which type, mirror the API function name |
+| `audit` | `/react-native-expo audit` | Read the existing codebase and check it against every standard in this skill. Output a report: ✅ pass / ❌ fail per rule. No code written. |
+
+If `$ARGUMENTS` starts with none of the above, treat the full input as a task description and apply the relevant standards while completing it.
+
+**After routing, strip the command keyword** — the remaining text is the subject. Example: `/react-native-expo feature products` → mode = feature, name = "products".
+
+**`audit` mode — what to check:**
+- Folder structure matches the defined layout (app/, src/api/, src/types/, src/features/, etc.)
+- Features are flat — no nested features
+- No feature-scoped files imported outside their feature folder
+- Screens are thin — no business logic, state, or API calls directly in screen files
+- Hook naming matches API function names (`getProducts` → `useGetProducts`)
+- Main feature hook exists and composes individual query/mutation hooks
+- No `StyleSheet.create` or inline `style` objects — NativeWind className only
+- Icons are Hugeicons only — no Expo icons or React Native Vector Icons
+- `useSharedValue` / Reanimated used for animation — no legacy `Animated` API
+- No barrel exports (`index.ts`)
+- No SCREAMING_SNAKE_CASE variables
+- No inline functions in JSX
+- `export const` for everything except screens (default export only)
+- Global components that should be shared are not duplicated per feature
+
+---
+
 ## Stack
 
 | Layer | Tool |

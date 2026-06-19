@@ -13,6 +13,46 @@ description: >
 
 Standards and scaffold guide for all Next.js/React projects.
 
+---
+
+## COMMANDS
+
+Parse the first word of `$ARGUMENTS` to determine the mode. Route accordingly.
+
+| Command | Usage | What it does |
+|---|---|---|
+| `scaffold` | `/frontend-nextjs scaffold` | New project — ask the 5 CLAUDE.md questions, generate folder structure + axios + QueryProvider + root layout + CLAUDE.md |
+| `feature` | `/frontend-nextjs feature <name>` | Scaffold a new vertical slice — creates `context/`, `table/`, `modals/`, `components/`, `hooks/`, `api.ts`, `types.ts` |
+| `page` | `/frontend-nextjs page <name>` | Generate a page component at the correct App Router path — thin shell wrapping the feature provider and components |
+| `component` | `/frontend-nextjs component <name>` | Generate a component — ask if feature-scoped or global, place in the right folder, build reusable from the start |
+| `hook` | `/frontend-nextjs hook <name>` | Generate a TanStack Query hook (query or mutation) — ask which type, mirror the API function name |
+| `audit` | `/frontend-nextjs audit` | Read the existing codebase and check it against every standard in this skill. Output a report: ✅ pass / ❌ fail per rule. No code written. |
+
+If `$ARGUMENTS` starts with none of the above, treat the full input as a task description and apply the relevant standards while completing it.
+
+**After routing, strip the command keyword** — the remaining text is the subject. Example: `/frontend-nextjs feature users` → mode = feature, name = "users".
+
+**`audit` mode — what to check:**
+- Folder structure matches the defined layout (src/app/, src/features/, src/components/, src/lib/, src/providers/)
+- Features are flat — no nested features inside other features
+- No feature-scoped files imported outside their feature folder
+- Pages are thin — no business logic, state, or API calls directly in page components
+- Context is a thin provider — no state defined inside context, only wraps the hook
+- Hook naming matches API function names (`getUsers` → `useGetUsers`)
+- Main feature hook exists and composes individual query/mutation hooks
+- Mutation hooks invalidate the relevant query key on `onSuccess`
+- Icons are Hugeicons only — no Lucide or other icon libraries
+- No barrel exports (`index.ts`)
+- No SCREAMING_SNAKE_CASE variables
+- No inline functions in JSX
+- Arrow functions used everywhere — no `function` declarations for variable-assigned functions
+- `export const` for all non-page components, hooks, utilities; default export for pages only
+- Global components that should be shared (SearchInput, TablePagination, ConfirmDialog, etc.) are not duplicated per feature
+- Zod schemas are co-located with their inferred types in the same file
+- Feature-specific schemas in `features/[domain]/schemas/`, shared schemas in `lib/schemas/`
+
+---
+
 ## Stack
 
 | Layer | Tool |
