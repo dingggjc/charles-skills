@@ -515,7 +515,7 @@ const handleBack = () => {
 - Keep screens thin — all logic in hooks
 - Use named constants, never magic values
 - No barrel exports (`index.ts`) — import directly from the file
-EOF
+
 ---
 
 ## CLAUDE.md Auto-Generation

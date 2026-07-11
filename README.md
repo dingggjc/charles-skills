@@ -9,6 +9,7 @@ Personal Claude skill collection for consistent coding standards across all proj
 | `frontend-nextjs` | Next.js, TypeScript, shadcn/ui, TanStack Query | Standards and scaffold guide for Next.js web projects |
 | `backend-dotnet` | .NET 10, Clean Architecture, MediatR, EF Core | Standards and scaffold guide for .NET Web API projects |
 | `react-native-expo` | Expo, NativeWind, React Native Reusables, TanStack Query | Standards and scaffold guide for React Native mobile apps |
+| `design-taste-mobile` | Expo, NativeWind, Reanimated, React Native Reusables | Anti-slop mobile design skill — the taste layer for React Native screens (mobile counterpart of tasteskill.dev) |
 
 ---
 
@@ -25,6 +26,9 @@ npx skills add github:dingggjc/charles-skills/backend-dotnet
 
 # React Native
 npx skills add github:dingggjc/charles-skills/react-native-expo
+
+# Mobile design taste
+npx skills add github:dingggjc/charles-skills/design-taste-mobile
 ```
 
 ### Install from local clone
@@ -79,6 +83,16 @@ Use `CLAUDE_TEMPLATE.md` at the root as a reference for what gets generated.
 - Zustand for global state, TanStack Query for server state
 - Hugeicons React Native for icons
 - Auto-generates filled `CLAUDE.md` on project scaffold
+
+### `design-taste-mobile`
+- Anti-slop design skill for React Native / Expo screens — mobile counterpart of [tasteskill.dev](https://www.tasteskill.dev/)
+- Brief inference + one-line Design Read before any code
+- Three dials (variance / motion / density) tuned per screen type
+- Design language map — HIG-native vs Material 3 vs brand-first
+- Reanimated motion playbook with canonical skeletons (collapsing header, press-scale, stagger, swipe-dismiss, skeleton pulse)
+- Mobile AI-tell bans (Poppins, gradient CTAs, greeting-bell headers, 5-tab defaults, em-dashes) + strict pre-flight checklist
+- Commands: `new`, `redesign`, `audit`, `palette`, `motion`, `check`
+- Companion to `react-native-expo` — that skill owns architecture, this one owns taste
 
 ---
 
